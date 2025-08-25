@@ -14,6 +14,10 @@ local opts = { noremap = true, silent = true }
 
 -- save file
 vim.keymap.set("n", "<C-s>", "<cmd> w <CR>", opts)
+vim.keymap.set("n", "<M-r>", function()
+	vim.diagnostic.setqflist() -- carica errori del buffer corrente
+	vim.cmd("copen") -- apri quickfix
+end, { noremap = true, silent = true })
 
 -- save file without auto-formatting
 vim.keymap.set("n", "<leader>sn", "<cmd>noautocmd w <CR>", opts)
