@@ -32,9 +32,69 @@ map("n", "<Leader>dt", "<cmd>lua vim.cmd('RustLsp testables')<CR>", { desc = "De
 local opts = { noremap = true, silent = true }
 vim.keymap.set("n", "<C-/>", require("Comment.api").toggle.linewise.current, opts)
 
--- Copilot
-vim.keymap.set("i", "<C-j>", "copilot#Accept(<CR>)", { expr = true, replace_keycodes = false })
-vim.keymap.set("i", "<C-k>", "copilot#Dismiss()", { expr = true, replace_keycodes = false })
+-- Copilot keybindings
+vim.keymap.set("i", "<M-l>", function()
+  local copilot = require("copilot.suggestion")
+  if copilot.is_visible() then
+    copilot.accept()
+  end
+end, { desc = "Copilot: Accept suggestion" })
+vim.keymap.set("i", "<M-]>", function()
+  require("copilot.suggestion").next()
+end, { desc = "Copilot: Next suggestion" })
+vim.keymap.set("i", "<M-[>", function()
+  require("copilot.suggestion").prev()
+end, { desc = "Copilot: Previous suggestion" })
+vim.keymap.set("i", "<C-]>", function()
+  require("copilot.suggestion").dismiss()
+end, { desc = "Copilot: Dismiss suggestion" })
+vim.keymap.set("i", "<M-c>", function()
+  require("copilot.panel").open()
+end, { desc = "Copilot: Open panel" })
+
+-- Copilot Chat keybindings
+vim.keymap.set("n", "<leader>cc", function()
+  require("CopilotChat").toggle()
+end, { desc = "Copilot: Toggle chat" })
+vim.keymap.set("n", "<leader>cx", function()
+  require("CopilotChat").reset()
+end, { desc = "Copilot: Reset chat" })
+vim.keymap.set("v", "<leader>cv", function()
+  local chat = require("CopilotChat")
+  local select = require("CopilotChat.select")
+  chat.ask("", { selection = select.visual })
+end, { desc = "Copilot: Chat with visual selection" })
+vim.keymap.set("n", "<leader>ci", function()
+  local chat = require("CopilotChat")
+  local select = require("CopilotChat.select")
+  chat.ask("", {
+    selection = select.buffer,
+    window = {
+      layout = "float",
+      relative = "cursor",
+      width = 1,
+      height = 0.4,
+      row = 1,
+    },
+  })
+end, { desc = "Copilot: Inline chat" })
+vim.keymap.set("n", "<leader>cq", function()
+  local chat = require("CopilotChat")
+  chat.close()
+end, { desc = "Copilot: Close chat window" })
+vim.keymap.set("n", "<leader>cs", function()
+  vim.cmd("CopilotChatSubmit")
+end, { desc = "Copilot: Submit prompt" })
+vim.keymap.set("n", "<leader>cb", function()
+  local chat = require("CopilotChat")
+  local select = require("CopilotChat.select")
+  chat.ask("", { selection = select.buffer })
+end, { desc = "Copilot: Chat with buffer" })
+vim.keymap.set("n", "<leader>ct", function()
+  local chat = require("CopilotChat")
+  local select = require("CopilotChat.select")
+  chat.ask("", { selection = select.tab })
+end, { desc = "Copilot: Chat with tab" })
 
 
 vim.keymap.set("n", "\\", "<cmd>NvimTreeToggle<CR>", { desc = "Toogle tree" })
@@ -89,3 +149,19 @@ end
 
 vim.api.nvim_create_user_command('CargoBuildQf', cargo_build_qf, {})
 vim.keymap.set("n", "<C-b>", "<cmd>CargoBuildQf<CR>", { desc = "Cargo build" })
+
+-- Comandi Copilot
+vim.api.nvim_create_user_command('CopilotAuth', function()
+  vim.cmd("Copilot auth")
+end, { desc = "Autentica Copilot con GitHub" })
+
+vim.api.nvim_create_user_command('CopilotStatus', function()
+  local copilot = require("copilot")
+  local client = copilot.client
+  if client then
+    local status = client.is_running() and "✅ In esecuzione" or "❌ Non in esecuzione"
+    print("Copilot Status: " .. status)
+  else
+    print("❌ Client Copilot non disponibile. Esegui :CopilotAuth per autenticarti.")
+  end
+end, { desc = "Verifica lo stato di Copilot" })

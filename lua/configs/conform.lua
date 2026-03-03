@@ -4,6 +4,7 @@ local options = {
     python = { "ruff_format" },
     css = { "prettier" },
     html = { "prettier" },
+    java = { "google_java_format" },
   },
 
   format_on_save = function(bufnr)
