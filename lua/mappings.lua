@@ -27,10 +27,55 @@ map("n", "<Leader>dr", "<cmd>lua require'dap'.run_last()<CR>", { desc = "Debugge
 -- rustaceanvim
 map("n", "<Leader>dt", "<cmd>lua vim.cmd('RustLsp testables')<CR>", { desc = "Debugger testables" })
 
+
+-- vim.keymap.set("n", "<leader>gp", ":Gitsigns stage_hunk<CR>", { desc = "Stage hunk" })
+map("n", "<leader>gr", ":Gitsigns reset_hunk<CR>", { desc = "Reset hunk" })
+
 -- map("n", "<C-/>", "<cmd>lua require('Comment.api').toggle.linewise.current<CR>", { desc = "Comment toogle"})
 
-local opts = { noremap = true, silent = true }
-vim.keymap.set("n", "<C-/>", require("Comment.api").toggle.linewise.current, opts)
+-- Le mappature per opencode sono già definite nel plugin
+-- lua/plugins/opencode.lua. Per evitare duplicati lasciamo
+-- quelle originali e non ridefiniamo le keybindings qui.
+
+-- Mappatura "sicura" per <C-a>: carica il plugin se necessario e chiama ask()
+vim.keymap.set({ "n", "x" }, "<C-a>", function()
+  local ok, mod = pcall(require, "opencode")
+  if not ok then
+    -- Prova a caricare tramite lazy (se disponibile)
+    if pcall(require, "lazy") then
+      pcall(function()
+        require("lazy").load({ plugins = { "opencode.nvim" } })
+      end)
+      ok, mod = pcall(require, "opencode")
+    end
+  end
+
+  if ok and mod and type(mod.ask) == "function" then
+    mod.ask("@this: ", { submit = true })
+  else
+    vim.notify("opencode non disponibile: assicurati che il plugin sia installato e caricato", vim.log.levels.WARN)
+  end
+end, { desc = "Chiedi a opencode...", noremap = true, silent = true })
+
+-- Toggle/opencode focus: mapping in normal mode per evitare dipendenza dalla mappa del plugin
+vim.keymap.set("n", "<leader>o", function()
+  local ok, mod = pcall(require, "opencode")
+  if not ok then
+    if pcall(require, "lazy") then
+      pcall(function()
+        require("lazy").load({ plugins = { "opencode.nvim" } })
+      end)
+    end
+    ok, mod = pcall(require, "opencode")
+  end
+
+  if ok and mod and type(mod.toggle) == "function" then
+    mod.toggle()
+  else
+    vim.notify("opencode non disponibile", vim.log.levels.WARN)
+  end
+end, { desc = "Toggle Opencode (apri/chiudi)", noremap = true, silent = true })
+
 
 -- Copilot keybindings
 vim.keymap.set("i", "<M-l>", function()

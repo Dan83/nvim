@@ -17,4 +17,7 @@ return {
 			changedelete = { text = "~" },
 		},
 	},
+	keys = {
+		{ "<leader>gp", "<cmd>Gitsigns stage_hunk<CR>", desc = "Stage hunk", mode = "n" },
+	},
 }

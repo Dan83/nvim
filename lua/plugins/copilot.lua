@@ -43,7 +43,6 @@ return {
   },
   {
     "CopilotC-Nvim/CopilotChat.nvim",
-    branch = "stable",
     dependencies = {
       { "zbirenbaum/copilot.lua" },
       { "nvim-lua/plenary.nvim" },
